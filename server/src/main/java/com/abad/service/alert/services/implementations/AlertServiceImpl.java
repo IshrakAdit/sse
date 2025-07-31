@@ -16,8 +16,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Service;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +32,8 @@ public class AlertServiceImpl implements AlertService {
     private final MqttClient mqttClient;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     @Override
     public AlertResponse createAlert(AlertCreateRequest request) {
@@ -111,6 +115,17 @@ public class AlertServiceImpl implements AlertService {
         return response;
     }
 
+    @Override
+    public SseEmitter subscribeClient() {
+        SseEmitter emitter = new SseEmitter(0L); // No timeout
+        emitters.add(emitter);
+
+        emitter.onCompletion(() -> emitters.remove(emitter));
+        emitter.onTimeout(() -> emitters.remove(emitter));
+        emitter.onError(e -> emitters.remove(emitter));
+
+        return emitter;
+    }
 
     private AlertResponse mapToResponse(Alert alert) {
         return new AlertResponse(

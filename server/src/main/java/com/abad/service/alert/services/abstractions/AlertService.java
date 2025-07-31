@@ -3,6 +3,7 @@ package com.abad.service.alert.services.abstractions;
 import com.abad.service.alert.dtos.request.AlertCreateRequest;
 import com.abad.service.alert.dtos.response.AlertResponse;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface AlertService {
     List<AlertResponse> getAllAlerts();
     void sendNotification(String topic, String message) throws MqttException;
     AlertResponse sendAlert(AlertCreateRequest request);
+    SseEmitter subscribeClient();
 
 }
 

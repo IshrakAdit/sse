@@ -5,10 +5,12 @@ import com.abad.service.alert.dtos.response.AlertResponse;
 import com.abad.service.alert.services.abstractions.AlertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -46,23 +48,17 @@ public class AlertControllerV1 {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/send/message")
-    public ResponseEntity<String> sendMessageNotification(@RequestParam String topic,
-                                                   @RequestParam String message) {
-        try {
-            alertService.sendNotification(topic, message);
-            return ResponseEntity.ok("Notification sent to topic: " + topic);
-        } catch (MqttException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to send notification: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/send/alert")
-    public ResponseEntity<AlertResponse> sendAlertNotification(@RequestBody AlertCreateRequest request) {
-        AlertResponse alertResponse = alertService.sendAlert(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(alertResponse);
-    }
+//    @PostMapping("/broad-cast")
+//    public ResponseEntity<AlertResponse> broadcastAlert(@RequestBody AlertCreateRequest request) {
+//        AlertResponse response = alertService.createAlert(request);
+//        alertService.broadcastAlert(response);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+//    }
+//
+//    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+//    public SseEmitter subscribe() {
+//        return alertService.subscribeClient();
+//    }
 
 }
 
