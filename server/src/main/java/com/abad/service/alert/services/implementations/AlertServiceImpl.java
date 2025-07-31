@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -125,6 +126,21 @@ public class AlertServiceImpl implements AlertService {
         emitter.onError(e -> emitters.remove(emitter));
 
         return emitter;
+    }
+
+    @Override
+    public void broadcastAlert(AlertCreateRequest alertCreateRequest) {
+        AlertResponse alertResponse = createAlert(alertCreateRequest);
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("new-alert")
+                        .data(alertResponse)
+                        .id(String.valueOf(alertResponse.id())));
+            } catch (IOException e) {
+                emitters.remove(emitter);
+            }
+        }
     }
 
     private AlertResponse mapToResponse(Alert alert) {
