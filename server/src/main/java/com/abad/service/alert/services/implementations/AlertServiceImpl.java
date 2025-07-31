@@ -129,7 +129,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public void broadcastAlert(AlertCreateRequest alertCreateRequest) {
+    public AlertResponse broadcastAlert(AlertCreateRequest alertCreateRequest) {
         AlertResponse alertResponse = createAlert(alertCreateRequest);
         for (SseEmitter emitter : emitters) {
             try {
@@ -141,6 +141,7 @@ public class AlertServiceImpl implements AlertService {
                 emitters.remove(emitter);
             }
         }
+        return alertResponse;
     }
 
     private AlertResponse mapToResponse(Alert alert) {

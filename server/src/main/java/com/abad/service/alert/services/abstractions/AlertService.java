@@ -16,7 +16,7 @@ public interface AlertService {
     void sendNotification(String topic, String message) throws MqttException;
     AlertResponse sendAlert(AlertCreateRequest request);
     SseEmitter subscribeClient();
-    void broadcastAlert(AlertCreateRequest alertCreateRequest);
+    AlertResponse broadcastAlert(AlertCreateRequest alertCreateRequest);
 
 }
 

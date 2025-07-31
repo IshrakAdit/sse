@@ -48,17 +48,16 @@ public class AlertControllerV1 {
         return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/broad-cast")
-//    public ResponseEntity<AlertResponse> broadcastAlert(@RequestBody AlertCreateRequest request) {
-//        AlertResponse response = alertService.createAlert(request);
-//        alertService.broadcastAlert(response);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-//    }
-//
-//    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-//    public SseEmitter subscribe() {
-//        return alertService.subscribeClient();
-//    }
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribe() {
+        return alertService.subscribeClient();
+    }
+
+    @PostMapping("/broad-cast")
+    public ResponseEntity<AlertResponse> broadcastAlert(@RequestBody AlertCreateRequest alertCreateRequest) {
+        AlertResponse alertResponse = alertService.broadcastAlert(alertCreateRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(alertResponse);
+    }
 
 }
 
