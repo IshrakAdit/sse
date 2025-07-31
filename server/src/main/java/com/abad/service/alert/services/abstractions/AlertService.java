@@ -13,8 +13,6 @@ public interface AlertService {
     void deleteAlert(Long id);
     AlertResponse getAlertById(Long id);
     List<AlertResponse> getAllAlerts();
-    void sendNotification(String topic, String message) throws MqttException;
-    AlertResponse sendAlert(AlertCreateRequest request);
     SseEmitter subscribeClient();
     AlertResponse broadcastAlert(AlertCreateRequest alertCreateRequest);
 

@@ -7,15 +7,10 @@ import com.abad.service.alert.entities.User;
 import com.abad.service.alert.repositories.AlertRepository;
 import com.abad.service.alert.repositories.UserRepository;
 import com.abad.service.alert.services.abstractions.AlertService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Service;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -29,10 +24,6 @@ public class AlertServiceImpl implements AlertService {
 
     private final AlertRepository alertRepository;
     private final UserRepository userRepository;
-
-    private final MqttClient mqttClient;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
@@ -71,49 +62,6 @@ public class AlertServiceImpl implements AlertService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public void sendNotification(String topic, String message) throws MqttException {
-        if (!mqttClient.isConnected()) {
-            MqttConnectOptions options = new MqttConnectOptions();
-            options.setAutomaticReconnect(true);
-            options.setCleanSession(true);
-            mqttClient.connect(options);
-            System.out.println("Connected to MQTT broker.");
-        }
-
-        String receiver = "alerts/" + topic;
-        MqttMessage mqttMessage = new MqttMessage(message.getBytes());
-        mqttMessage.setQos(1); // QoS level 1: at least once
-        mqttClient.publish(receiver, mqttMessage);
-        System.out.println("📡 Published message to topic: " + topic);
-    }
-
-    @Override
-    public AlertResponse sendAlert(AlertCreateRequest request) {
-        User user = userRepository.findByName(request.userName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Alert alert = new Alert();
-        alert.setDescription(request.description());
-        alert.setType(request.type());
-        alert.setUser(user);
-
-        Alert saved = alertRepository.save(alert);
-        AlertResponse response = mapToResponse(saved);
-
-        String topic = "alerts/" + request.userName();
-        try {
-            String jsonObject = objectMapper.writeValueAsString(response);
-            sendNotification(topic, jsonObject);
-        } catch (MqttException e) {
-            System.err.println("Failed to send MQTT notification: " + e.getMessage());
-        } catch (JsonProcessingException e) {
-            System.err.println("JSON processing exception: " + e.getMessage());
-        }
-
-        return response;
     }
 
     @Override
