@@ -15,7 +15,25 @@ const Dashboard = () => {
   const { user, logout } = useUser();
 
   useEffect(() => {
-    sseService.connect(); // Establish SSE connection
+    sseService.connect({
+      onOpen: () => {
+        setIsConnected(true);
+        console.log("SSE connected");
+        toast({
+          title: "Connected",
+          description: "SSE real-time notifications enabled",
+        });
+      },
+      onError: (err) => {
+        setIsConnected(false);
+        console.error("SSE connection error", err);
+        toast({
+          title: "Connection Error",
+          description: "Failed to connect to SSE stream",
+          variant: "destructive",
+        });
+      },
+    });
 
     sseService.on("new-alert", (data) => {
       const newNotification = {
@@ -30,8 +48,6 @@ const Dashboard = () => {
         description: newNotification.message,
       });
     });
-
-    setIsConnected(true);
 
     return () => {
       sseService.off("new-alert");

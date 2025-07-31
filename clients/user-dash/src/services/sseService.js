@@ -1,4 +1,5 @@
 // sseService.js
+
 const SSE_URL = "http://localhost:8080/notify/v1/subscribe";
 
 class SseService {
@@ -7,7 +8,7 @@ class SseService {
     this.listeners = new Map();
   }
 
-  connect() {
+  connect({ onOpen, onError } = {}) {
     if (this.eventSource) {
       console.warn("SSE connection already open.");
       return;
@@ -16,40 +17,28 @@ class SseService {
     this.eventSource = new EventSource(SSE_URL);
 
     this.eventSource.onopen = () => {
-      console.log("✅ SSE connection established.");
+      console.log("SSE connection established.");
+      onOpen?.();
     };
 
     this.eventSource.onerror = (error) => {
-      console.error("SSE error:", error);
-      // Optional: close or reconnect logic
+      console.error("SSE connection failed:", error);
+      onError?.(error);
     };
 
-    // Default message handler (optional)
+    // Fallback default
     this.eventSource.onmessage = (event) => {
-      console.log("Default message received:", event.data);
+      console.log("Default message:", event.data);
     };
   }
 
-  /**
-   * Add a listener for a custom event name
-   */
   on(eventName, callback) {
-    if (!this.eventSource) {
-      this.connect();
-    }
-
-    const listener = (event) => {
-      const data = JSON.parse(event.data);
-      callback(data);
-    };
-
+    if (!this.eventSource) return;
+    const listener = (event) => callback(JSON.parse(event.data));
     this.eventSource.addEventListener(eventName, listener);
     this.listeners.set(eventName, listener);
   }
 
-  /**
-   * Remove listener for a specific event
-   */
   off(eventName) {
     const listener = this.listeners.get(eventName);
     if (listener && this.eventSource) {
@@ -58,15 +47,12 @@ class SseService {
     }
   }
 
-  /**
-   * Close the connection
-   */
   disconnect() {
     if (this.eventSource) {
       this.eventSource.close();
-      console.log("🔌 SSE connection closed.");
       this.eventSource = null;
       this.listeners.clear();
+      console.log("SSE connection closed.");
     }
   }
 }
