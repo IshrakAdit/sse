@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class AlertControllerV1 {
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("MQTT Alert service is running successfully");
+        return ResponseEntity.ok("SSE alert service is running successfully");
     }
 
     @GetMapping("/id/{id}")
