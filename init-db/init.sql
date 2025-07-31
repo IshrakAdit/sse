@@ -1,8 +1,8 @@
-CREATE USER mqtt_user WITH PASSWORD 'mqtt_password';
-CREATE DATABASE mqtt_db;
+CREATE USER sse_user WITH PASSWORD 'sse_password';
+CREATE DATABASE sse_db;
 
-GRANT ALL PRIVILEGES ON DATABASE mqtt_db TO mqtt_user;
+GRANT ALL PRIVILEGES ON DATABASE sse_db TO sse_user;
 
-\connect mqtt_db
-GRANT ALL ON SCHEMA public TO mqtt_user;
-ALTER SCHEMA public OWNER TO mqtt_user;
+\connect sse_db
+GRANT ALL ON SCHEMA public TO sse_user;
+ALTER SCHEMA public OWNER TO sse_user;

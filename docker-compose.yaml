@@ -6,23 +6,12 @@ services:
       - "5433:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mqtt_password
+      POSTGRES_PASSWORD: sse_password
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init-db:/docker-entrypoint-initdb.d
     networks:
       - app-net
-
-  mqtt-broker:
-    image: eclipse-mosquitto:2
-    ports:
-      - "1883:1883"
-      - "9001:9001"
-    volumes:
-      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-    networks:
-      - app-net
-    restart: unless-stopped
 
   alert-service:
     build:
@@ -31,12 +20,9 @@ services:
       - "8082:8082"
     depends_on:
       - postgres
-      - mqtt-broker
     environment:
-      POSTGRES_USER: mqtt_user
-      POSTGRES_PASSWORD: mqtt_password
-      mqtt.broker: tcp://mqtt-broker:1883
-      mqtt.clientId: spring-backend
+      POSTGRES_USER: sse_user
+      POSTGRES_PASSWORD: sse_password
     restart: unless-stopped
     networks:
       - app-net
