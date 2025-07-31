@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bell, BellRing, LogOut } from "lucide-react";
-import mqttClient from "../services/mqttService";
+import sseService from "../services/sseService"; // ✅ updated import
 import NotificationCard from "./NotificationCard";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "../contexts/UserContext";
@@ -15,65 +15,28 @@ const Dashboard = () => {
   const { user, logout } = useUser();
 
   useEffect(() => {
-    const subscriptionTopic = "alerts/" + user.name;
-    console.log("Subscribing to topic:", subscriptionTopic);
-    const handleConnect = () => {
-      console.log("MQTT Connected");
-      setIsConnected(true);
-      mqttClient.subscribe(subscriptionTopic, (err) => {
-        if (!err) {
-          console.log("Subscribed to notification/topic");
-          toast({
-            title: "Connected",
-            description: "Real-time notifications enabled",
-          });
-        } else {
-          console.error("Subscription error:", err);
-        }
-      });
-    };
+    sseService.connect(); // Establish SSE connection
 
-    const handleMessage = (topic, message) => {
+    sseService.on("new-alert", (data) => {
       const newNotification = {
-        id: Date.now() + Math.random(),
-        message: message.toString(),
+        id: data.id || Date.now() + Math.random(),
+        message: data.message || "New alert received",
         timestamp: new Date(),
       };
       setNotifications((prev) => [newNotification, ...prev]);
-      console.log("New notification received:", newNotification);
 
       toast({
         title: "New Notification",
-        description: message.toString(),
+        description: newNotification.message,
       });
-    };
+    });
 
-    const handleError = (err) => {
-      console.error("MQTT Error:", err);
-      setIsConnected(false);
-    };
-
-    const handleClose = () => {
-      console.warn("MQTT Disconnected");
-      setIsConnected(false);
-    };
-
-    // Registering listeners
-    mqttClient.on("connect", handleConnect);
-    mqttClient.on("message", handleMessage);
-    mqttClient.on("error", handleError);
-    mqttClient.on("close", handleClose);
-
-    // If already connected (can happen before useEffect), we manually call handler
-    if (mqttClient.connected) {
-      handleConnect();
-    }
+    setIsConnected(true);
 
     return () => {
-      mqttClient.removeListener("connect", handleConnect);
-      mqttClient.removeListener("message", handleMessage);
-      mqttClient.removeListener("error", handleError);
-      mqttClient.removeListener("close", handleClose);
+      sseService.off("new-alert");
+      sseService.disconnect();
+      setIsConnected(false);
     };
   }, [toast]);
 
@@ -97,7 +60,7 @@ const Dashboard = () => {
               variant={isConnected ? "default" : "destructive"}
               className="text-xs"
             >
-              {isConnected ? "MQTT Connected" : "MQTT Disconnected"}
+              {isConnected ? "SSE Connected" : "SSE Disconnected"}
             </Badge>
             <Button variant="ghost" size="sm" onClick={logout}>
               <LogOut className="h-4 w-4" />
@@ -130,7 +93,7 @@ const Dashboard = () => {
                 <p className="text-sm text-muted-foreground">
                   {isConnected
                     ? "You're connected and ready to receive notifications"
-                    : "Waiting for connection to MQTT broker..."}
+                    : "Waiting for SSE connection..."}
                 </p>
               </CardContent>
             </Card>
