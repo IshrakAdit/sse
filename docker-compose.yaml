@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mqtt_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - app-net
+
+  mqtt-broker:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  alert-service:
+    build:
+      context: ./server
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - mqtt-broker
+    environment:
+      POSTGRES_USER: mqtt_user
+      POSTGRES_PASSWORD: mqtt_password
+      mqtt.broker: tcp://mqtt-broker:1883
+      mqtt.clientId: spring-backend
+    restart: unless-stopped
+    networks:
+      - app-net
+
+  user-service:
+    build:
+      context: ./clients/user-dash
+    ports:
+      - "5173:5173"
+    depends_on:
+      - alert-service
+    restart: unless-stopped
+    networks:
+      - app-net
+
+  admin-service:
+    build:
+      context: ./clients/admin-dash
+    ports:
+      - "5174:5174"
+    depends_on:
+      - alert-service
+    restart: unless-stopped
+    networks:
+      - app-net
+
+volumes:
+  pgdata:
+
+networks:
+  app-net:
+    driver: bridge
