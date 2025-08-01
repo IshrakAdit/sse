@@ -1,11 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock } from "lucide-react";
+import { Clock, Satellite, User } from "lucide-react";
 
 const NotificationCard = ({ notification }) => {
   const formatTime = (timestamp) => {
     const now = new Date();
-    const diff = now - timestamp;
+    const diff = now - new Date(timestamp);
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
@@ -35,14 +35,24 @@ const NotificationCard = ({ notification }) => {
               <p className="text-sm text-foreground leading-relaxed">
                 {notification.message}
               </p>
-              {!notification.read && (
-                <Badge
-                  variant="secondary"
-                  className="text-xs whitespace-nowrap"
-                >
-                  New
-                </Badge>
-              )}
+              <Badge
+                variant={
+                  notification.type === "broadcast" ? "default" : "secondary"
+                }
+                className="text-xs whitespace-nowrap flex items-center gap-1"
+              >
+                {notification.type === "broadcast" ? (
+                  <>
+                    <Satellite className="h-3 w-3" />
+                    Broadcast
+                  </>
+                ) : (
+                  <>
+                    <User className="h-3 w-3" />
+                    Unicast
+                  </>
+                )}
+              </Badge>
             </div>
 
             <div className="flex items-center justify-between">
