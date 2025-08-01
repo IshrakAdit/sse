@@ -140,7 +140,7 @@ Or access the following health-check endpoints:
 
 ---
 
-## Future Improvements
+## Forward Strategy
 
 - **Client reconnection** and **heartbeat monitoring**
 - **Persistent alert history** with read/unread states
