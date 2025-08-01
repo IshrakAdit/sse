@@ -36,9 +36,10 @@ const Dashboard = () => {
     });
 
     sseService.on("new-alert", (data) => {
+      console.log("New alert received:", data);
       const newNotification = {
         id: data.id || Date.now() + Math.random(),
-        message: data.message || "New alert received",
+        message: data.description || "New alert received",
         timestamp: new Date(),
       };
       setNotifications((prev) => [newNotification, ...prev]);

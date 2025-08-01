@@ -14,7 +14,10 @@ const Dashboard = () => {
     username: "",
     message: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState({
+    broadcast: false,
+    unicast: false,
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -24,28 +27,53 @@ const Dashboard = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.username.trim() || !formData.message.trim()) {
-      toast.error("Both username and message are required");
+  const handleBroadcast = async () => {
+    if (!formData.message.trim()) {
+      toast.error("Message is required for broadcast");
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading((prev) => ({ ...prev, broadcast: true }));
 
     try {
-      await apiService.broadCastNotification(
-        formData.username,
-        formData.message
-      );
-      toast.success("Message sent successfully!");
+      console.log("Broadcasting message:", formData.message);
+      await apiService.broadCastNotification({
+        userName: formData.username,
+        message: formData.message,
+      });
+
+      toast.success("Broadcast message sent!");
       setFormData({ username: "", message: "" });
     } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Network error. Please check your connection.");
+      console.error("Broadcast error:", error);
+      toast.error("Failed to send broadcast");
     } finally {
-      setIsLoading(false);
+      setIsLoading((prev) => ({ ...prev, broadcast: false }));
+    }
+  };
+
+  const handleUnicast = async () => {
+    if (!formData.username.trim() || !formData.message.trim()) {
+      toast.error("Username and message are required for unicast");
+      return;
+    }
+
+    setIsLoading((prev) => ({ ...prev, unicast: true }));
+
+    try {
+      console.log("Unicasting message:", formData);
+      await apiService.uniCastNotification({
+        userName: formData.username,
+        message: formData.message,
+      });
+
+      toast.success("Unicast message sent!");
+      setFormData({ username: "", message: "" });
+    } catch (error) {
+      console.error("Unicast error:", error);
+      toast.error("Failed to send unicast");
+    } finally {
+      setIsLoading((prev) => ({ ...prev, unicast: false }));
     }
   };
 
@@ -66,7 +94,7 @@ const Dashboard = () => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="username" className="text-sm font-medium">
               Username
@@ -77,9 +105,8 @@ const Dashboard = () => {
               type="text"
               value={formData.username}
               onChange={handleInputChange}
-              placeholder="Enter username"
+              placeholder="Enter username for unicast"
               className="h-11"
-              required
             />
           </div>
 
@@ -99,20 +126,48 @@ const Dashboard = () => {
             />
           </div>
 
-          <Button type="submit" disabled={isLoading} className="w-full h-11">
-            {isLoading ? (
-              <div className="flex items-center gap-2 mt-4">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Sending...
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 mt-4">
-                <Send className="h-4 w-4" />
-                Send Message
-              </div>
-            )}
-          </Button>
-        </form>
+          <div className="flex flex-col gap-4 mt-4">
+            <Button
+              type="button"
+              disabled={isLoading.unicast}
+              onClick={handleUnicast}
+              className="flex-1 h-11"
+              variant="primary"
+            >
+              {isLoading.unicast ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Sending...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Send className="w-4 h-4" />
+                  Unicast
+                </div>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              disabled={isLoading.broadcast}
+              onClick={handleBroadcast}
+              className="flex-1 h-11"
+              variant="outline"
+            >
+              {isLoading.broadcast ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Sending...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Send className="w-4 h-4" />
+                  Broadcast
+                </div>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
