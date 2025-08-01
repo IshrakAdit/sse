@@ -15,6 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,7 @@ public class AlertServiceImpl implements AlertService {
     private final UserRepository userRepository;
 
     private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+    private final Map<String, List<SseEmitter>> uniCastEmitters = new ConcurrentHashMap<>();
 
     @Override
     public AlertResponse createAlert(AlertCreateRequest request) {
@@ -86,6 +89,28 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
+    public SseEmitter subscribeClient(String userName) {
+        SseEmitter emitter = new SseEmitter(0L); // No timeout
+
+        uniCastEmitters.computeIfAbsent(userName, key -> new CopyOnWriteArrayList<>()).add(emitter);
+
+        emitter.onCompletion(() -> uniCastEmitters.getOrDefault(userName, List.of()).remove(emitter));
+        emitter.onTimeout(() -> uniCastEmitters.getOrDefault(userName, List.of()).remove(emitter));
+        emitter.onError(e -> uniCastEmitters.getOrDefault(userName, List.of()).remove(emitter));
+
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("heartbeat")
+                    .data("connected")
+                    .reconnectTime(3000));
+        } catch (IOException e) {
+            uniCastEmitters.remove(userName);
+        }
+
+        return emitter;
+    }
+
+    @Override
     public AlertResponse broadcastAlert(AlertCreateRequest alertCreateRequest) {
         AlertResponse alertResponse = createAlert(alertCreateRequest);
         for (SseEmitter emitter : emitters) {
@@ -99,6 +124,27 @@ public class AlertServiceImpl implements AlertService {
             }
         }
         return alertResponse;
+    }
+
+    @Override
+    public AlertResponse uniCastAlert(String userName, AlertCreateRequest request) {
+        AlertResponse alert = createAlert(request);
+
+        List<SseEmitter> userEmitters = uniCastEmitters.get(userName);
+        if (userEmitters != null) {
+            for (SseEmitter emitter : userEmitters) {
+                try {
+                    emitter.send(SseEmitter.event()
+                            .name("new-alert")
+                            .data(alert)
+                            .id(String.valueOf(alert.id())));
+                } catch (IOException e) {
+                    userEmitters.remove(emitter);
+                }
+            }
+        }
+
+        return alert;
     }
 
     private AlertResponse mapToResponse(Alert alert) {
