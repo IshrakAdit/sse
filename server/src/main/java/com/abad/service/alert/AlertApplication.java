@@ -13,7 +13,7 @@ public class AlertApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		System.out.println("MQTT Notification Service");
+		System.out.println("SSE Real-time Notification Service");
 	}
 
 }
