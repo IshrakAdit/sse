@@ -63,7 +63,11 @@ public class AlertControllerV1 {
         return alertService.subscribeClient(userName);
     }
 
-
+    @PostMapping("/uni-cast/{userName}")
+    public ResponseEntity<AlertResponse> unicast(@PathVariable String userName, @RequestBody AlertCreateRequest request) {
+        AlertResponse alert = alertService.uniCastAlert(userName, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(alert);
+    }
 
 }
 
