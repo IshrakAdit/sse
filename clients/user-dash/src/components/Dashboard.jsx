@@ -54,11 +54,11 @@ const Dashboard = () => {
     };
 
     sseService.on("new-alert", (data) => handleNewAlert(data, "broadcast"));
-    sseService.on("user-alert", (data) => handleNewAlert(data, "unicast"));
+    sseService.on(`${user.name}`, (data) => handleNewAlert(data, "unicast"));
 
     return () => {
       sseService.off("new-alert");
-      sseService.off("user-alert");
+      sseService.off(`${user.name}`);
       sseService.disconnectAll();
       setIsConnected(false);
     };
