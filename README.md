@@ -1,6 +1,6 @@
 # SSE-Protocol
 
-A **full-stack application** implementing **Server-Sent Events (SSE)** for a **simple, efficient, and real-time unidirectional notification** system.
+A **full-stack web application** implementing **Server-Sent Events (SSE)** for a **simple, efficient, and real-time unidirectional notification** system.
 
 ## Tech Stack
 
@@ -126,7 +126,7 @@ Or access the following health-check endpoints:
 
 ## Why SSE?
 
-### SSE vs WebSocket
+### SSE vs WebSockets
 
 | Feature            | SSE (Server-Sent Events)             | WebSocket                       |
 | ------------------ | ------------------------------------ | ------------------------------- |
