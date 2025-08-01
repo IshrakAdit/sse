@@ -47,31 +47,46 @@ class ApiService {
   }
 
   // Send simple MQTT message
-  async sendMessage(topic, message) {
-    const params = new URLSearchParams({
-      topic: topic.trim(),
-      message: message.trim(),
-    });
-    const response = await fetch(
-      `${BASE_URL}/send/message?${params.toString()}`,
-      {
-        method: "POST",
-      }
-    );
-    if (!response.ok)
-      throw new Error(`Failed to send message: ${response.status}`);
-    return response.text();
-  }
+  // async sendMessage(topic, message) {
+  //   const params = new URLSearchParams({
+  //     topic: topic.trim(),
+  //     message: message.trim(),
+  //   });
+  //   const response = await fetch(
+  //     `${BASE_URL}/send/message?${params.toString()}`,
+  //     {
+  //       method: "POST",
+  //     }
+  //   );
+  //   if (!response.ok)
+  //     throw new Error(`Failed to send message: ${response.status}`);
+  //   return response.text();
+  // }
 
-  // Send alert notification (publishes + saves it)
-  async sendAlertNotification({ userId, type, description }) {
-    const response = await fetch(`${BASE_URL}/send/alert`, {
+  // // Send alert notification (publishes + saves it)
+  // async sendAlertNotification({ userId, type, description }) {
+  //   const response = await fetch(`${BASE_URL}/send/alert`, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ userId, type, description }),
+  //   });
+  //   if (!response.ok)
+  //     throw new Error(`Failed to send alert: ${response.status}`);
+  //   return response.json();
+  // }
+
+  async broadCastNotification({ userName, message }) {
+    const userId = 1;
+    const type = "CROP";
+    const description = message.trim();
+
+    const response = await fetch(`${BASE_URL}/broad-cast`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, type, description }),
+      body: JSON.stringify({ userId, userName, type, description }),
     });
     if (!response.ok)
-      throw new Error(`Failed to send alert: ${response.status}`);
+      throw new Error(`Failed to broadcast: ${response.status}`);
     return response.json();
   }
 }

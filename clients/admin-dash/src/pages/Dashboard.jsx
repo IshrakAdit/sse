@@ -35,7 +35,10 @@ const Dashboard = () => {
     setIsLoading(true);
 
     try {
-      await apiService.sendMessage(formData.username, formData.message);
+      await apiService.broadCastNotification(
+        formData.username,
+        formData.message
+      );
       toast.success("Message sent successfully!");
       setFormData({ username: "", message: "" });
     } catch (error) {
