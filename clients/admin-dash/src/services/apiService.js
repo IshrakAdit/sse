@@ -93,7 +93,7 @@ class ApiService {
     const userId = 1;
     const type = "CROP";
 
-    const response = await fetch(`${BASE_URL}/uni-cast`, {
+    const response = await fetch(`${BASE_URL}/uni-cast/${userName}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, userName, type, description: message }),
