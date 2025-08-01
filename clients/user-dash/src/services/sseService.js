@@ -1,6 +1,6 @@
 // sseService.js
 
-const SSE_URL = "http://localhost:8080/notify/v1/subscribe";
+const SSE_URL = "http://localhost:8082/notify/v1/subscribe";
 
 class SseService {
   constructor() {

@@ -65,18 +65,6 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public SseEmitter subscribeClient() {
-        SseEmitter emitter = new SseEmitter(0L); // No timeout
-        emitters.add(emitter);
-
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
-        emitter.onError(e -> emitters.remove(emitter));
-
-        return emitter;
-    }
-
-    @Override
     public AlertResponse broadcastAlert(AlertCreateRequest alertCreateRequest) {
         AlertResponse alertResponse = createAlert(alertCreateRequest);
         for (SseEmitter emitter : emitters) {
