@@ -130,7 +130,6 @@ const Dashboard = () => {
               disabled={isLoading.unicast}
               onClick={handleUnicast}
               className="flex-1 h-11"
-              variant="primary"
             >
               {isLoading.unicast ? (
                 <div className="flex items-center gap-2">
