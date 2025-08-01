@@ -78,11 +78,22 @@ class ApiService {
   async broadCastNotification({ userName, message }) {
     const userId = 1;
     const type = "CROP";
-    console.log(
-      `Broadcasting message: ${message} for user: ${userName} (ID: ${userId})`
-    );
 
     const response = await fetch(`${BASE_URL}/broad-cast`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, userName, type, description: message }),
+    });
+    if (!response.ok)
+      throw new Error(`Failed to broadcast: ${response.status}`);
+    return response.json();
+  }
+
+  async uniCastNotification({ userName, message }) {
+    const userId = 1;
+    const type = "CROP";
+
+    const response = await fetch(`${BASE_URL}/uni-cast`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, userName, type, description: message }),

@@ -36,7 +36,6 @@ const Dashboard = () => {
     setIsLoading((prev) => ({ ...prev, broadcast: true }));
 
     try {
-      console.log("Broadcasting message:", formData.message);
       await apiService.broadCastNotification({
         userName: formData.username,
         message: formData.message,
@@ -61,7 +60,6 @@ const Dashboard = () => {
     setIsLoading((prev) => ({ ...prev, unicast: true }));
 
     try {
-      console.log("Unicasting message:", formData);
       await apiService.uniCastNotification({
         userName: formData.username,
         message: formData.message,
