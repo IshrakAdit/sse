@@ -36,6 +36,7 @@ const Dashboard = () => {
     });
 
     const handleNewAlert = (data, type) => {
+      console.log("New alert received:", data);
       const newNotification = {
         id: data.id || Date.now() + Math.random(),
         message: data.description || "New alert received",

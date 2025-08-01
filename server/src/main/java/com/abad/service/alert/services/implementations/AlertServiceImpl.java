@@ -135,7 +135,7 @@ public class AlertServiceImpl implements AlertService {
             for (SseEmitter emitter : userEmitters) {
                 try {
                     emitter.send(SseEmitter.event()
-                            .name("new-alert")
+                            .name(userName)
                             .data(alert)
                             .id(String.valueOf(alert.id())));
                 } catch (IOException e) {
