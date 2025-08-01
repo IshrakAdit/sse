@@ -58,5 +58,12 @@ public class AlertControllerV1 {
         return ResponseEntity.status(HttpStatus.CREATED).body(alertResponse);
     }
 
+    @GetMapping(value = "/subscribe/{userName}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeUser(@PathVariable String userName) {
+        return alertService.subscribeClient(userName);
+    }
+
+
+
 }
 
