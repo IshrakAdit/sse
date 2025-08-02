@@ -1,6 +1,6 @@
 # SSE-Protocol
 
-A **full-stack web application** implementing **Server-Sent Events (SSE)** for a **simple, efficient, and real-time unidirectional notification** system.
+A **full-stack multi-client web application** implementing **Server-Sent Events (SSE)** for a **simple, efficient, and real-time unidirectional notification** system, for both **Broadcasting** and **Unicasting** features.
 
 ## Tech Stack
 
@@ -74,6 +74,9 @@ Or access the following health-check endpoints:
 - Register or log in with a **username**
 - You’ll be redirected to a **real-time notification dashboard**
 - You should be connected to the server via SSE
+- You can open multiple portals with different usernames for simulating multiple clients
+- Use these usernames for unicasting notifications from admin sie
+- Broadcasted notifications should appear in all user portals
 
 ---
 
