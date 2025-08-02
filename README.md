@@ -54,7 +54,7 @@ This command:
 
 ### Backend Server
 
-Wait 2–3 minutes for the Spring Boot server to initialize.
+After the build, wait 4-5 minutes for the Spring Boot server to initialize.
 Then, you can test the connection using:
 
 ```bash
